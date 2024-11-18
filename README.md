@@ -12,6 +12,8 @@ Works perfectly fine with any web frameworks (django, fastapi, blacksheep, flask
 
     - create `requirements.txt` :D
 
+    - upload this package to pypi
+
 Example usage located in `__init__.py`:
 
 ```python
