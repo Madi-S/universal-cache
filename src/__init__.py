@@ -1,18 +1,41 @@
 import typing as t
 
-from src.caches import cache
+from pydantic import BaseModel
+
+from src.caches import cache, invalidate_cache
 
 
-@cache(prefix="some_prefix.some_func", timeout=60 * 60 * 24)
-def some_func(*args, **kwargs) -> t.Any:
-    return "something"
+# --- Function example ---
+@cache(prefix="some_function", timeout=60)
+def func__get_something_useful(*args: tuple, **kwargs: dict) -> t.Any:
+    return "something useful"
 
 
-@cache(prefix="some_prefix.some_view", timeout=60 * 60 * 2, is_response_method=True)
-def some_view(*args, **kwargs) -> t.Any:
-    return "response"
+@cache(prefix="some_function", timeout=60)
+def func__update_something_useful(*args: tuple, **kwargs: dict) -> t.Any:
+    return "updated"
 
 
-@cache(prefix="some_prefix.some_method", timeout=60 * 60 * 2, is_class_method=True)
-def some_method(*args, **kwargs) -> t.Any:
-    return "something from class"
+# --- View example ---
+@cache(prefix="some_view", timeout=60 * 15, is_response_method=True)
+def view__get_user(*args: tuple, **kwargs: dict) -> BaseModel: ...
+
+
+@invalidate_cache(prefix="some_view", is_response_method=True)
+def view__update_user(*args: tuple, **kwargs: dict) -> None: ...
+
+
+# --- Class method example ---
+class SomeClass:
+    _size: int
+
+    def __init__(self):
+        self._size: int = 20
+
+    @cache(prefix="some_method", timeout=60 * 25, is_class_method=True)
+    def method__get_size(self) -> int:
+        return self._size
+
+    @invalidate_cache(prefix="some_method", is_class_method=True)
+    def method__update_size(self, size: int) -> None:
+        self._size = size

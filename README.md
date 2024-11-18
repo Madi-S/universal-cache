@@ -1,31 +1,64 @@
 # universal-cache
+
 Lightweight and yet powerful way to cache and invalidate caches for anything in Python.
 
-Works perfectly fine with ane web frameworks (django, fastapi, blacksheep, flask ...), just regular functions and class methods.
+Works perfectly fine with any web frameworks (django, fastapi, blacksheep, flask ...), regular functions and class methods.
 
-Does not support `asyncio`, but it can be easily converted to `asyncio`
+"HOWTO" is pretty self-explanatory, but for any struggles or misunderstandings free to open issues or discussions.
 
-Requirements: redis, pottery (exact requirements will be updated soon).
+<b>TODO</b>:
+
+    - `async` support
+
+    - create `requirements.txt` :D
 
 Example usage located in `__init__.py`:
 
 ```python
 import typing as t
 
-from src.caches import cache
+from pydantic import BaseModel
+
+from src.caches import cache, invalidate_cache
 
 
-@cache(prefix="some_prefix.some_func", timeout=60 * 60 * 24)
-def some_func(*args, **kwargs) -> t.Any:
-    return "something"
+# --- Function example ---
+@cache(prefix="some_function", timeout=60)
+def func__get_something_useful(*args: tuple, **kwargs: dict) -> t.Any:
+    return "something useful"
 
 
-@cache(prefix="some_prefix.some_view", timeout=60 * 60 * 2, is_response_method=True)
-def some_view(*args, **kwargs) -> t.Any:
-    return "response"
+@cache(prefix="some_function", timeout=60)
+def func__update_something_useful(*args: tuple, **kwargs: dict) -> t.Any:
+    return "updated"
 
 
-@cache(prefix="some_prefix.some_method", timeout=60 * 60 * 2, is_class_method=True)
-def some_method(*args, **kwargs) -> t.Any:
-    return "something from class"
+# --- View example ---
+@cache(prefix="some_view", timeout=60 * 15, is_response_method=True)
+def view__get_user(*args: tuple, **kwargs: dict) -> BaseModel: ...
+
+
+@invalidate_cache(prefix="some_view", is_response_method=True)
+def view__update_user(*args: tuple, **kwargs: dict) -> None: ...
+
+
+# --- Class method example ---
+class SomeClass:
+    _size: int
+
+    def __init__(self):
+        self._size: int = 20
+
+    @cache(prefix="some_method", timeout=60 * 25, is_class_method=True)
+    def method__get_size(self) -> int:
+        return self._size
+
+    @invalidate_cache(prefix="some_method", is_class_method=True)
+    def method__update_size(self, size: int) -> None:
+        self._size = size
+
 ```
+
+If you are unsure that the object your function returns is cacheable, have a look at `src.utils.Serializer` and add a method to your object that is called `to_json` that should probably return a dict xD, which makes your object "json dumpable".
+
+Generally, there is no need to define `from_json` method for that class, because usually if it is json convertible, then it can be converted back to python object a.k.a "json loadable"
