@@ -1,7 +1,11 @@
 # universal-cache
-Lightweight and yet powerful way to cache and invalidate caches for anything in Python
+Lightweight and yet powerful way to cache and invalidate caches for anything in Python.
 
-Requirements: redis, pottery
+Works perfectly fine with ane web frameworks (django, fastapi, blacksheep, flask ...), just regular functions and class methods.
+
+Does not support `asyncio`, but it can be easily converted to `asyncio`
+
+Requirements: redis, pottery (exact requirements will be updated soon).
 
 Example usage located in `__init__.py`:
 
