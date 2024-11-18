@@ -4,6 +4,8 @@ Lightweight and yet powerful way to cache and invalidate caches for anything in 
 
 Works perfectly fine with any web frameworks (django, fastapi, blacksheep, flask ...), regular functions and class methods.
 
+Requirements: `redis`, `pottery`.
+
 "HOWTO" is pretty self-explanatory, but for any struggles or misunderstandings free to open issues or discussions.
 
 <b>TODO</b>:
